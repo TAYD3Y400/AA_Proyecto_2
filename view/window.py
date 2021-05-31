@@ -21,7 +21,7 @@ class Window(ABC):
     # Desc: Se encarga de renderizar
     def render(self):
         for ren in self.render_list:
-            ren(self)
+            ren()
 
     # Desc: Permite agregar un evento de render externo
     # Rest: La funcion solo debe recibir el contexto de la clase y un Surface de Pygame
