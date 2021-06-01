@@ -1,6 +1,7 @@
 from model.files import getImage
 from model.fractal import drawTree
 from model.tree import Tree
+from model.genetic import generate_pob, test_pob
 from view.window import Window
 import math
 import numpy as np
@@ -16,8 +17,6 @@ class Home(Window):
 
         self.render_list = []
         self.events = []
-
-        self.already = False
         
         self.click = False
         self.main_clock = pygame.time.Clock()
@@ -29,45 +28,36 @@ class Home(Window):
     def start_game(self):
         self.is_running = True
 
+        self.tree = self.pygame.image.load("Example.png")
         self.img = getImage("Example.png")
 
-        self.append_render(self.draw_tree)
+        self.totalArea = [0, 0]
+
+        for x in range(len(self.img)):
+            for y in range(len(self.img[0])):
+                self.totalArea[np.sum(self.img[y][x]) == 4] += 1
+
+        self.append_event(self.draw_tree)
 
         self.game_loop()
 
     # D: Dibuja un arbol en pantalla
-    def draw_tree(self):
-        if self.already:
+    def draw_tree(self, event):
+        if event.type != self.pygame.KEYDOWN:
             return
 
-        self.already = True
+        if event.key != self.pygame.K_SPACE:
+            return
 
-        tree_data = Tree()
-        tree_data.x1 = 300
-        tree_data.y1 = 600
-        tree_data.angle = -90
-        tree_data.depth = 9
-        tree_data.fork_angle = 20
-        tree_data.branch_angle = 45
-        tree_data.base_len = 8
-        tree_data.branch_base= 3
-        tree_data.branches = 4
+        self.screen.fill((0, 0, 0))
 
         origin = [200, 400]
 
-        for x in range(len(self.img)):
-            for y in range(len(self.img[0])):
-                self.screen.set_at((x+origin[0], y + origin[1]), self.img[y][x]*255)
+        self.screen.blit(self.tree, (200, 400))
 
-        print(np.sum(self.img[0][0]) == 4)
+        population = generate_pob(20)
 
-        rst = drawTree(tree_data, self.screen, self.img, origin)
+        pob = test_pob(population, self.totalArea, self.img, origin)
 
-        total = rst[0] + rst[1]
-
-        area_out = 100*(rst[1] / total)
-        area_in = 100*(rst[0] / total)
-
-        print(rst)
-        print("Porcentaje area dentro: ", area_in, "%")
-        print("Porcentaje area afuera: ", area_out, "%")
+        matrix = np.zeros((200, 200), dtype=int)
+        drawTree(pob[0][1], self.screen, self.img, origin, matrix, shouldRender = True)

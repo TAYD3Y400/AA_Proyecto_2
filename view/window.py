@@ -9,11 +9,13 @@ class Window(ABC):
 
     # Desc: Loop de la ventana. Solo debe encargarse de renderizar y eventos
     def game_loop(self):
+        self.events.append(self.close)
         while self.is_running:
             self.render()
 
             for event in self.pygame.event.get():
-                self.close(event)
+                for e in self.events:
+                    e(event)
 
             self.pygame.display.update()
             self.main_clock.tick(60)
@@ -22,6 +24,10 @@ class Window(ABC):
     def render(self):
         for ren in self.render_list:
             ren()
+
+    # Desc: Permite agregar un evento al juego
+    def append_event(self, event):
+        self.events.append(event)
 
     # Desc: Permite agregar un evento de render externo
     # Rest: La funcion solo debe recibir el contexto de la clase y un Surface de Pygame
