@@ -1,6 +1,7 @@
 import math
 import pygame
 import numpy as np
+import random
 from model.tree import Tree
 
 # D: Evita que un punto sobrepase el min y max
@@ -39,13 +40,18 @@ def drawTree(tree_data, screen, img, origin, matrix, shouldRender = False):
     x2 = tree_data.x1 + int(math.cos(math.radians(tree_data.angle))*tree_data.depth*tree_data.base_len)
     y2 = tree_data.y1 + int(math.sin(math.radians(tree_data.angle))*tree_data.depth*tree_data.base_len)
 
-    areas = [0, 0, tree_data.x1]
+    areas = [0, 0, tree_data.y1]
 
-    if x2 > tree_data.x1:
-        areas[2] = x2
+    if y2 < tree_data.x1:
+        areas[2] = y2
 
     if shouldRender:
-        pygame.draw.line(screen, (255,0,0), (tree_data.x1, tree_data.y1), (x2, y2),2)
+        rgb = (176, 91, 62)
+
+        if tree_data.depth == 1:
+            rgb = (17, 204, 31)
+
+        pygame.draw.line(screen, rgb, (tree_data.x1, tree_data.y1), (x2, y2),2)
 
         pygame.display.update()
     area_covered = calc_area([tree_data.x1, tree_data.y1], img, origin, matrix)
@@ -82,7 +88,7 @@ def drawTree(tree_data, screen, img, origin, matrix, shouldRender = False):
         areas[0] += rst_areas[0]
         areas[1] += rst_areas[1]
 
-        if rst_areas[2] > areas[2]:
+        if rst_areas[2] < areas[2]:
             areas[2] = cast(rst_areas[2], 0, 199)
     
     return areas

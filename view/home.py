@@ -1,7 +1,7 @@
 from model.files import getImage
 from model.fractal import drawTree
 from model.tree import Tree
-from model.genetic import generate_pob, test_pob
+from model.genetic import generate_pob, test_pob, merge
 from view.window import Window
 import math
 import numpy as np
@@ -28,19 +28,19 @@ class Home(Window):
     def start_game(self):
         self.is_running = True
 
-        self.tree = self.pygame.image.load("Example.png")
-        self.img = getImage("Example.png")
+        self.tree = self.pygame.image.load("Example3.png")
+        self.img = getImage("Example3.png")
 
-        self.totalArea = [0, 0, 0]
+        self.totalArea = [0, 0, len(self.img)]
 
         for x in range(len(self.img)):
             for y in range(len(self.img[0])):
                 isBlack = np.sum(self.img[y][x]) == 4
-                if not isBlack:
+                if not isBlack and y < self.totalArea[2]:
                     self.totalArea[2] = y
 
                 self.totalArea[isBlack] += 1
-
+        print(self.totalArea[2])
         self.append_event(self.draw_tree)
 
         self.game_loop()
@@ -53,15 +53,27 @@ class Home(Window):
         if event.key != self.pygame.K_SPACE:
             return
 
-        self.screen.fill((0, 0, 0))
-
         origin = [200, 400]
 
-        self.screen.blit(self.tree, (200, 400))
+        population = generate_pob(50)
 
-        population = generate_pob(20)
+        for i in range(0, 10):
+            self.screen.fill((0, 0, 0))
+            self.screen.blit(self.tree, (200, 400))
 
-        pob = test_pob(population, self.totalArea, self.img, origin)
+            print("Generacion #", i)
+
+            pob = test_pob(population, self.totalArea, self.img, origin)
+
+            result = []
+
+            for i in range(len(pob)):
+                result.append(pob[i][1])
+
+            population = merge(result)
+
+        print("Mejor")
+        print(pob[0][1])
 
         matrix = np.zeros((200, 200), dtype=int)
         drawTree(pob[0][1], self.screen, self.img, origin, matrix, shouldRender = True)
