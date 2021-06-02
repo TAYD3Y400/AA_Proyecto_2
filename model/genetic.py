@@ -7,11 +7,11 @@ import random
 # E: Dados unos resultados [AreaCubierta, AreaFuera] y unos pesos [w0, w1]
 #    Obtiene el valor del fitness 
 # R: len(weights) == len(results)
-def fitness(results, weights):
+def fitness(results, weights, sums):
     fit = 0.0
 
     for i in range(len(results)):
-        fit += results[i] * weights[i]
+        fit += results[i] * weights[i] + sums[i]
     
     fit = fit / len(results)
 
@@ -34,16 +34,16 @@ def generate_pob(n, x = 300, y = 600):
         tree.angle = -90
 
         # Se genera un angulo
-        tree.fork_angle = random.randint(-60, 60)
-        tree.branch_angle = random.randint(10, 350)
+        tree.fork_angle = random.randint(-45, 0)
+        tree.branch_angle = random.randint(-60, 0)
 
         # Se genera la profundidad del arbol (10 es pesado)
-        tree.depth = random.randint(1, 9)
+        tree.depth = random.randint(1, 10)
         # Se genera el largo del tronco
-        tree.base_len = random.randint(7, 10)
-        tree.branch_base = random.randint(1, 10)
+        tree.base_len = random.randint(4, 10)
+        tree.branch_base = random.randint(3, 10)
         # Se genera el numero de ramas
-        tree.branches = random.randint(3, 4)
+        tree.branches = random.randint(3, 5)
 
         pob.append(tree)
 
@@ -60,7 +60,8 @@ def sort_pob(pob):
 
 # D: Dada una poblacion, las pone a prueba y determina el fitness de cada uno
 def test_pob(population, areas, img, origin):
-    weights = [100 / areas[0], -100 / areas[1]]
+    weights = [100 / areas[0], -100 * 2 / areas[1], -1/100]
+    sums = [0, 0, 1]
     res = []
 
     for i in range(len(population)):
@@ -68,7 +69,11 @@ def test_pob(population, areas, img, origin):
 
         print("Testeando individuo #", i)
         results = drawTree(population[i], None, img, origin, matrix)
-        fit = fitness(results, weights)
+
+        results[2] -= origin[1]
+        results[2] = abs(200 - results[2])
+
+        fit = fitness(results, weights, sums)
 
         res.append([fit, population[i]])
 

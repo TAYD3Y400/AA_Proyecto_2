@@ -34,12 +34,15 @@ def calc_area(point_a, img, origin, matrix):
 # E: Un Tree con los parametros del arbol, un screen de Python, un punto origen, una matriz por referencia
 def drawTree(tree_data, screen, img, origin, matrix, shouldRender = False):
     if tree_data.depth == 0:
-        return [0, 0]
-
-    areas = [0, 0]
+        return [0, 0, 0]
 
     x2 = tree_data.x1 + int(math.cos(math.radians(tree_data.angle))*tree_data.depth*tree_data.base_len)
     y2 = tree_data.y1 + int(math.sin(math.radians(tree_data.angle))*tree_data.depth*tree_data.base_len)
+
+    areas = [0, 0, tree_data.x1]
+
+    if x2 > tree_data.x1:
+        areas[2] = x2
 
     if shouldRender:
         pygame.draw.line(screen, (255,0,0), (tree_data.x1, tree_data.y1), (x2, y2),2)
@@ -55,7 +58,7 @@ def drawTree(tree_data, screen, img, origin, matrix, shouldRender = False):
     areas[0] += area_covered[0]
     areas[1] += area_covered[1]
 
-    for i in range(1,tree_data.branches+1):
+    for i in range(1, tree_data.branches+1):
         new_tree = Tree()
         new_tree.x1 = x2
         new_tree.y1 = y2
@@ -78,5 +81,8 @@ def drawTree(tree_data, screen, img, origin, matrix, shouldRender = False):
 
         areas[0] += rst_areas[0]
         areas[1] += rst_areas[1]
+
+        if rst_areas[2] > areas[2]:
+            areas[2] = cast(rst_areas[2], 0, 199)
     
     return areas

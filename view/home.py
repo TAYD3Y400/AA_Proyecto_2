@@ -31,11 +31,15 @@ class Home(Window):
         self.tree = self.pygame.image.load("Example.png")
         self.img = getImage("Example.png")
 
-        self.totalArea = [0, 0]
+        self.totalArea = [0, 0, 0]
 
         for x in range(len(self.img)):
             for y in range(len(self.img[0])):
-                self.totalArea[np.sum(self.img[y][x]) == 4] += 1
+                isBlack = np.sum(self.img[y][x]) == 4
+                if not isBlack:
+                    self.totalArea[2] = y
+
+                self.totalArea[isBlack] += 1
 
         self.append_event(self.draw_tree)
 
