@@ -34,7 +34,7 @@ def generate_pob(n, x = 300, y = 600):
         tree.angle = -90
 
         # Se genera un angulo
-        tree.fork_angle = random.randint(-45, 0)
+        tree.fork_angle = random.randint(-60, 0)
         tree.branch_angle = random.randint(-70, 0)
 
         # Se genera la profundidad del arbol (10 es pesado)
@@ -43,7 +43,7 @@ def generate_pob(n, x = 300, y = 600):
         tree.base_len = random.randint(4, 10)
         tree.branch_base = random.randint(3, 15)
         # Se genera el numero de ramas
-        tree.branches = random.randint(3, 4)
+        tree.branches = 3
 
         pob.append(tree)
 
@@ -60,14 +60,14 @@ def sort_pob(pob):
 
 # D: Dada una poblacion, las pone a prueba y determina el fitness de cada uno
 def test_pob(population, areas, img, origin):
-    weights = [1 / areas[0], -4 / areas[1], -3]
-    sums = [0, 0, 1]
+    weights = [1 / areas[0], -5 / areas[1], -4/200]
+    sums = [0, 5, 4]
     res = []
 
     for i in range(len(population)):
         matrix = np.zeros((200, 200), dtype=int)
         
-        results = [0, 0, 0]
+        results = [0, 0, 200]
 
         if population[i].depth < 9:
             results = drawTree(population[i], None, img, origin, matrix)
@@ -124,6 +124,7 @@ def merge_nums(num1, num2):
 # Given two trees, it generates a tree merge of these ones
 def merge_tree(tree_a, tree_b):
     gen_tree = Tree()
+    trees = [tree_a, tree_b]
 
     # Estos valores son constantes
     gen_tree.x1 = tree_a.x1
@@ -131,16 +132,18 @@ def merge_tree(tree_a, tree_b):
     gen_tree.angle = tree_a.angle
 
     # Estos valores mutan
-    gen_tree.depth = merge_nums(tree_a.depth, tree_b.depth)
-    gen_tree.fork_angle = merge_nums(tree_a.fork_angle, tree_b.fork_angle)
-    gen_tree.branch_angle = merge_nums(tree_a.branch_angle, tree_b.branch_angle)
-    gen_tree.base_len = merge_nums(tree_a.base_len, tree_b.base_len)
-    gen_tree.branch_base_len = merge_nums(tree_a.branch_base_len, tree_b.branch_base_len)
-    gen_tree.branch_base = merge_nums(tree_a.branch_base, tree_b.branch_base)
-    gen_tree.branches = merge_nums(tree_a.branches, tree_b.branches)
+    gen_tree.branches = trees[random.randint(0, 1)].branches
+    gen_tree.base_len = trees[random.randint(0, 1)].base_len + random.randint(-3, 3)
+    gen_tree.depth = trees[random.randint(0, 1)].depth
 
-    if gen_tree.branches == 0:
-        gen_tree.branches = 3
+    gen_tree.fork_angle = trees[random.randint(0, 1)].fork_angle + random.randint(-3, 3)
+
+    gen_tree.branch_angle = trees[random.randint(0, 1)].branch_angle + random.randint(-3, 3)
+    gen_tree.branch_base_len = trees[random.randint(0, 1)].branch_base_len
+    gen_tree.branch_base = trees[random.randint(0, 1)].branch_base
+
+    if gen_tree.depth == 0:
+        gen_tree.depth = 8
 
     return gen_tree
 
@@ -149,14 +152,14 @@ def merge_tree(tree_a, tree_b):
 # Also agregates a new random tree
 def merge(population):
     gen_size = int(len(population)*0.5)
-    top = population[:gen_size]
+    top = population[1:gen_size]
 
     new_gen = generate_pob(5)
     new_gen.extend(top)
 
     for i in range(gen_size - 1):
-        tree_a = top[random.randint(0, gen_size - 1)]
-        tree_b = top[random.randint(0, gen_size - 1)]
+        tree_a = top[random.randint(0, len(top) - 1)]
+        tree_b = top[random.randint(0, len(top) - 1)]
 
         new_tree = merge_tree(tree_a, tree_b)
 

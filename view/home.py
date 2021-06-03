@@ -28,8 +28,8 @@ class Home(Window):
     def start_game(self):
         self.is_running = True
 
-        self.tree = self.pygame.image.load("Example3.png")
-        self.img = getImage("Example3.png")
+        self.tree = self.pygame.image.load("Frame 4.png")
+        self.img = getImage("Frame 4.png")
 
         self.totalArea = [0, 0, len(self.img)]
 
@@ -65,6 +65,12 @@ class Home(Window):
 
             pob = test_pob(population, self.totalArea, self.img, origin)
 
+            print("Fitness: ", pob[i][0])
+            print(pob[i][1])
+
+            matrix = np.zeros((200, 200), dtype=int)
+            drawTree(pob[0][1], self.screen, self.img, origin, matrix, shouldRender = True)
+
             result = []
 
             for i in range(len(pob)):
@@ -74,6 +80,3 @@ class Home(Window):
 
         print("Mejor")
         print(pob[0][1])
-
-        matrix = np.zeros((200, 200), dtype=int)
-        drawTree(pob[0][1], self.screen, self.img, origin, matrix, shouldRender = True)
