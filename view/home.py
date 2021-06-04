@@ -28,8 +28,8 @@ class Home(Window):
     def start_game(self):
         self.is_running = True
 
-        self.tree = self.pygame.image.load("Frame 4.png")
-        self.img = getImage("Frame 4.png")
+        self.tree = self.pygame.image.load("Frame 1.png")
+        self.img = getImage("Frame 1.png")
 
         self.totalArea = [0, 0, len(self.img)]
 

@@ -12,8 +12,6 @@ def fitness(results, weights, sums):
 
     for i in range(len(results)):
         fit += results[i] * weights[i] + sums[i]
-    
-    fit = fit / len(results)
 
     return fit
 
@@ -60,20 +58,29 @@ def sort_pob(pob):
 
 # D: Dada una poblacion, las pone a prueba y determina el fitness de cada uno
 def test_pob(population, areas, img, origin):
-    weights = [1 / areas[0], -5 / areas[1], -4/200]
-    sums = [0, 5, 4]
+    weights = [2 / areas[0], -0.5 / areas[1], -0.5/200, 0]
+    sums = [0, 0.5, 0.5, 0]
     res = []
 
     for i in range(len(population)):
         matrix = np.zeros((200, 200), dtype=int)
         
-        results = [0, 0, 200]
+        results = [0, 0, 200, 0]
 
-        if population[i].depth < 9:
-            results = drawTree(population[i], None, img, origin, matrix)
+        results = drawTree(population[i], None, img, origin, matrix)
 
-        results[2] -= origin[1]
-        results[2] = abs(200 - results[2])
+        # Montecarlo
+        sum = 0
+        for k in range(1000):
+            x = random.randint(0, len(img) - 1)
+            y = random.randint(0, len(img) - 1)
+
+            if np.sum(img[y][x]) == 4 and matrix[x][y] == 1:
+                sum += 1
+
+        results[3] = sum
+
+        weights[3] = 100/1000
 
         fit = fitness(results, weights, sums)
 
@@ -142,9 +149,6 @@ def merge_tree(tree_a, tree_b):
     gen_tree.branch_base_len = trees[random.randint(0, 1)].branch_base_len
     gen_tree.branch_base = trees[random.randint(0, 1)].branch_base
 
-    if gen_tree.depth == 0:
-        gen_tree.depth = 8
-
     return gen_tree
 
 # Given a population, gets the the top 50% and 
@@ -152,9 +156,9 @@ def merge_tree(tree_a, tree_b):
 # Also agregates a new random tree
 def merge(population):
     gen_size = int(len(population)*0.5)
-    top = population[1:gen_size]
+    top = population[:gen_size]
 
-    new_gen = generate_pob(5)
+    new_gen = generate_pob(20)
     new_gen.extend(top)
 
     for i in range(gen_size - 1):
