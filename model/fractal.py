@@ -5,10 +5,10 @@ import random
 from model.tree import Tree
 
 def renderTree(screen, tree, x2, y2):
-    rgb = (random.randint(90, 255), 91, 62)
+    rgb = (0, 0, 0)
 
     if tree.depth == 1:
-        rgb = (random.randint(200, 255), random.randint(0, 150), random.randint(150, 255))
+        rgb = (random.randint(200, 255), random.randint(0, 20), random.randint(0, 50))
 
     pygame.draw.line(screen, rgb, (tree.x1, tree.y1), (x2, y2), 2)
 
@@ -33,10 +33,10 @@ def calc_area(point_a, img, origin, matrix):
     result = [0, 0]
 
     if matrix[point_a[0]][point_a[1]] == 0:
-        isBlack = np.sum(img[point_a[1], point_a[0]]) == 4
+        isWhite = np.sum(img[point_a[1], point_a[0]]) == 4
         
         matrix[point_a[0]][point_a[1]] = 1
-        result[isBlack] += 1
+        result[isWhite] += 1
 
     return result
 
