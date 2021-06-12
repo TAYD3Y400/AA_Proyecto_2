@@ -37,6 +37,8 @@ class Home(Window):
         self.click = False
         self.main_clock = pygame.time.Clock()
 
+        self.execute_state = (255, 0, 0)
+
         self.screen = pygame.display.set_mode((800, 800))
         self.screen.fill((137, 207, 240))
         self.pygame.display.set_caption("Fractal Tree")
@@ -56,7 +58,7 @@ class Home(Window):
         self.rightArrow = self.pygame.image.load("FlechaDer.png")
         self.sliderBG = self.pygame.image.load("Rect.png")
 
-        self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(0, 60))
+        self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(1), self.screen, self.pygame, position=(0, 60))
 
     # Override
     def start_game(self):
@@ -93,6 +95,7 @@ class Home(Window):
                 self.flag=True
                 print(self.file)
 
+        self.draw_circle_state()
         self.screen.blit(self.text, self.text_rect)
 
     # Calcula los datos de la imagen
@@ -146,7 +149,7 @@ class Home(Window):
                 self.screen, (0, 0, 0), start_pos, end_pos, 3)
         else:
             self.main_clock = time.time() * 1000
-
+        
     # D: Dibuja un arbol en pantalla
     def draw_tree(self, event):
         if self.flag==False:
@@ -157,6 +160,9 @@ class Home(Window):
 
         if event.key != self.pygame.K_SPACE:
             return
+        
+        self.execute_state = (0, 255, 0)
+        self.draw_circle_state()
 
         aux = self.set_area()
 
@@ -167,10 +173,11 @@ class Home(Window):
         origin = [200, 400]
 
         population = generate_pob(100)
+        amount_gens = 10
 
         data = pd.DataFrame([], columns = ['num_individuo', 'generacion', 'fitness'])
 
-        for i in range(0, 10):
+        for i in range(0, amount_gens):
             pob = test_pob(population, self.totalArea, self.img, origin)
 
             matrix = np.zeros((200, 200), dtype=int)
@@ -189,6 +196,11 @@ class Home(Window):
             self.trees_per_gen[i] = result
             population = merge(result)
 
-        rst = data.to_csv('resultados.csv', index=False)
+        self.genSlider.setData(np.arange(1, amount_gens+1))
+        data.to_csv('resultados.csv', index=False)
+        self.execute_state = (255, 0, 0)
 
-        print(pob[0][1])
+    # E: Dibuja el circulo de estado de generacion
+    def draw_circle_state(self):
+        self.pygame.draw.circle(self.screen, self.execute_state, (20, 20), 20)
+        self.pygame.display.update()
