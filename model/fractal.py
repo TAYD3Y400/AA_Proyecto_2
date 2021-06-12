@@ -5,7 +5,7 @@ import random
 from model.tree import Tree
 
 def renderTree(screen, tree, x2, y2):
-    rgb = (0, 0, 0)
+    rgb = (random.randint(100, 200), random.randint(50, 100), random.randint(200, 255))
 
     if tree.depth == 1:
         rgb = (random.randint(200, 255), random.randint(0, 20), random.randint(0, 50))

@@ -1,4 +1,6 @@
 class Tree():
+    fathers = [None, None]
+
     x1 = 0
     y1 = 0
     angle = 0

@@ -1,19 +1,19 @@
-from model.files import getImage
-from model.fractal import drawTree
-from model.tree import Tree
-from model.genetic import generate_pob, test_pob, merge
-from view.window import Window
-import math
 import numpy as np
-import pygame
-import sys
-import time
 import easygui
 import ntpath
-from pygame.locals import *
-import numpy as np
-from view.sprite import *
+import pygame
+import math
+import time
+import sys
 
+from model.genetic import generate_pob, test_pob, merge
+from model.fractal import drawTree
+from model.files import getImage
+from view.slider import Slider
+from view.window import Window
+from model.tree import Tree
+from pygame.locals import *
+from view.sprite import *
 
 import pandas as pd
 import time
@@ -21,7 +21,6 @@ import time
 # Desc: Esto requiere un mejor diseño, probablemente lo refactorice más adelante
 # Clase que contiene la ventana del home
 class Home(Window):
-
     # E: Una referencia a Pygame
     # Desc: Constructor de la clase
     def __init__(self, pygame):
@@ -33,6 +32,8 @@ class Home(Window):
 
         self.tree_list = []
         
+        self.trees_per_gen = {}
+        
         self.click = False
         self.main_clock = pygame.time.Clock()
 
@@ -42,7 +43,7 @@ class Home(Window):
 
         self.sprite1 = Sprite("Arrow.png", 200, 400, 0, 0)
 
-        self.Font = self.pygame.font.SysFont('comicsans', 30)
+        self.Font = self.pygame.font.SysFont('default', 30)
         self.text = self.Font.render('Seleccione la imagen a utilizar', True, (0,0,0))
         self.text_rect = self.text.get_rect()
         self.text_rect.center = (800 / 5,800 / 5)
@@ -51,11 +52,27 @@ class Home(Window):
         self.flag=False
         self.file="Frame 3.png"
 
+        self.leftArrow = self.pygame.image.load("FlechaIzq.png")
+        self.rightArrow = self.pygame.image.load("FlechaDer.png")
+        self.sliderBG = self.pygame.image.load("Rect.png")
+
+        self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(0, 60))
 
     # Override
+    def start_game(self):
+        self.is_running = True
+
+        self.append_event(self.draw_gui)
+        self.append_event(self.genSlider.events)
+        self.append_event(self.draw_tree)
+
+        self.append_render(self.genSlider.render)
+        self.append_render(self.render_queue)
+        
+        self.game_loop()
+
     # D: Dibuja la GUI
     def draw_gui(self, event):
-
         BLACK=(0,0,0)
         RED=(255,0,0)
 
@@ -67,7 +84,7 @@ class Home(Window):
         mouse_click = (0,0)
 
         if self.text_rect.collidepoint(self.pygame.mouse.get_pos()):
-            self.text = self.Font.render('Seleccione la imagen a utilizar', True, (255,0,0))
+            self.text = self.Font.render('Seleccione la imagen a utilizar', True, RED)
 
         if event.type==MOUSEBUTTONUP:
             if self.text_rect.collidepoint(self.pygame.mouse.get_pos()):
@@ -78,20 +95,8 @@ class Home(Window):
 
         self.screen.blit(self.text, self.text_rect)
 
-
-
-    # Override
-    def start_game(self):
-        self.is_running = True
-
-        self.append_event(self.draw_gui)
-        self.append_event(self.draw_tree)
-        self.append_render(self.render_queue)
-        
-        self.game_loop()
-
+    # Calcula los datos de la imagen
     def set_area(self):
-
         self.tree = self.pygame.image.load(self.file)
         self.img = getImage(self.file)
 
@@ -108,8 +113,8 @@ class Home(Window):
 
         return [self.totalArea,self.img]
 
+    # Dibuja los mejores arboles por cada generacion
     def render_queue(self):
-
         if len(self.tree_list) == 0:
             return
 
@@ -126,9 +131,6 @@ class Home(Window):
     # E/S: N/A
     # D: Se encarga de hacer la animacion del cursor
     def animate_cursor(self):
-
-
-
         cursor = self.__pygame.Rect(self.pygame.mouse.get_pos())
 
         start_pos = (self.pygame.mouse.get_pos())
@@ -147,9 +149,6 @@ class Home(Window):
 
     # D: Dibuja un arbol en pantalla
     def draw_tree(self, event):
-
-        print(self.flag ,"--",self.file)
-
         if self.flag==False:
             return
 
@@ -159,7 +158,9 @@ class Home(Window):
         if event.key != self.pygame.K_SPACE:
             return
 
-        aux=self.set_area()
+        aux = self.set_area()
+
+        self.trees_per_gen = {}
         self.totalArea=aux[0]
         self.img=aux[1]
 
@@ -170,15 +171,9 @@ class Home(Window):
         data = pd.DataFrame([], columns = ['num_individuo', 'generacion', 'fitness'])
 
         for i in range(0, 10):
-            print("Generacion #", i)
-
             pob = test_pob(population, self.totalArea, self.img, origin)
 
-            print("Fitness: ", pob[0][0])
-            print(pob[0][1])
-
             matrix = np.zeros((200, 200), dtype=int)
-            #drawTree(pob[0][1], self.screen, self.img, origin, matrix, shouldRender = True)
             self.tree_list.append(pob[0][1])
             result = []
 
@@ -189,11 +184,11 @@ class Home(Window):
 
                 data = data.append(row)
                 result.append(pob[0][1])
-
+            
+            # Guardamos las poblaciones por generacion - poblacion
+            self.trees_per_gen[i] = result
             population = merge(result)
 
         rst = data.to_csv('resultados.csv', index=False)
 
-        #drawTree(pob[0][1], self.screen, self.img, origin, matrix, shouldRender = True)
-        print("Mejor")
         print(pob[0][1])
