@@ -49,6 +49,16 @@ class Home(Window):
         self.text_rect.center = (800 / 5,800 / 5)
         self.screen.blit(self.text, self.text_rect)
 
+        self.generacion_text = self.Font.render('Generación #', True, (0,0,0))
+        self.text_rect2 = self.generacion_text.get_rect()
+        self.text_rect2.center = (145,240)
+        self.screen.blit(self.generacion_text, self.text_rect2)
+
+        self.poblation_text = self.Font.render('Población #', True, (0,0,0))
+        self.text_rect3 = self.poblation_text.get_rect()
+        self.text_rect3.center = (145,365)
+        self.screen.blit(self.poblation_text, self.text_rect3)
+
         self.flag=False
         self.file="Frame 3.png"
 
@@ -56,17 +66,25 @@ class Home(Window):
         self.rightArrow = self.pygame.image.load("FlechaDer.png")
         self.sliderBG = self.pygame.image.load("Rect.png")
 
-        self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(0, 60))
+        self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 255))
+        self.genSlider2 = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 380))
+
+    def draw_background(self):
+        kirby = pygame.image.load("kirby.png")
+        self.screen.blit(kirby, (-75, 475))
+   
 
     # Override
     def start_game(self):
         self.is_running = True
 
+        self.append_render(self.draw_background)
         self.append_event(self.draw_gui)
         self.append_event(self.genSlider.events)
         self.append_event(self.draw_tree)
 
         self.append_render(self.genSlider.render)
+        self.append_render(self.genSlider2.render)
         self.append_render(self.render_queue)
         
         self.game_loop()
