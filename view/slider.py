@@ -49,6 +49,8 @@ class Slider():
         leftArrowPos = [self.position, (self.position[0] + 20, self.position[1] + 60)]
         rightArrowPos = [(self.position[0] + 220, self.position[1]), (self.position[0] + 240, self.position[1] + 60)]
         
+        print(self.pygame.mouse.get_pos())
+        print(rightArrowPos)
         if self.didCollide(leftArrowPos, self.pygame.mouse.get_pos()):
             self.cursor -= 1
         
@@ -75,6 +77,6 @@ class Slider():
         if rect[0][0] > point[0] or point[0] > rect[1][0]:
             return False
 
-        return rect[0][1] > point[1] or rect[1][1] > point[1]
+        return rect[0][1] <= point[1] + 10 and point[1] + 10 <= rect[1][1]
 
         

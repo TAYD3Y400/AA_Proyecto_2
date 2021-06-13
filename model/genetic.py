@@ -2,6 +2,7 @@ from model.tree import Tree
 from model.fractal import drawTree
 import numpy as np
 import random
+import time
 
 # D: Funcion de fitness
 # E: Dados unos resultados [AreaCubierta, AreaFuera] y unos pesos [w0, w1]
@@ -21,6 +22,7 @@ def generate_pob(n, x, y):
     pob = []
 
     for i in range(n):
+        random.seed(time.clock())
         tree = Tree()
 
         # La posicion en pantalla
@@ -59,7 +61,7 @@ def sort_pob(pob):
 # D: Dada una poblacion, las pone a prueba y determina el fitness de cada uno
 def test_pob(population, areas, img, origin):
     # [Area negra, area blanca, distancia de la altura, Monte Carlo]
-    weights = [0.5 / areas[0], -5 / areas[1], -0.5/200, 1/1000]
+    weights = [2/ areas[0], -5 / areas[1], -0.5/200, 5/1000]
     sums = [0, 5, 0.5, 0]
     res = []
 
@@ -73,6 +75,7 @@ def test_pob(population, areas, img, origin):
         # Montecarlo
         sum = 0
         for k in range(1000):
+            random.seed(time.clock())
             x = random.randint(0, len(img) - 1)
             y = random.randint(0, len(img) - 1)
 
@@ -91,6 +94,7 @@ def test_pob(population, areas, img, origin):
 
 # Given two numbers, merge its bits in some range
 def merge_nums(num1, num2):
+    random.seed(time.clock())
     values = [2, 3]
     binary = ["1", "0"]
 
@@ -129,6 +133,7 @@ def merge_nums(num1, num2):
 
 # Given two trees, it generates a tree merge of these ones
 def merge_tree(tree_a, tree_b):
+    random.seed(time.clock())
     gen_tree = Tree()
     trees = [tree_a, tree_b]
 
@@ -154,15 +159,14 @@ def merge_tree(tree_a, tree_b):
 # generates a new generation and append it
 # Also agregates a new random tree
 def merge(population, origin):
-
-    gen_size = int(len(population)*0.5)
+    gen_size = int(len(population)*0.4)
     top = population[:gen_size]
 
-    new_gen = generate_pob(int(len(population)*0.2), origin[0] + 100, origin[1] + 200)
+    new_gen = generate_pob(int(len(population)*0.1), origin[0] + 100, origin[1] + 200)
 
-    #new_gen.extend(top)
+    new_gen.extend(top)
 
-    for i in range(int(len(population)*1)):
+    for i in range(int(len(population)*0.6)):
         tree_a = top[random.randint(0, len(top) - 1)]
         tree_b = top[random.randint(0, len(top) - 1)]
 

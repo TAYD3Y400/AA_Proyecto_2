@@ -62,11 +62,12 @@ class Home(Window):
         self.rightArrow = self.pygame.image.load("FlechaDer.png")
         self.sliderBG = self.pygame.image.load("Rect.png")
 
+        self.currentGeneration = 0
+        self.currentTree = 0
         self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 255))
         self.genSlider2 = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 380))
 
     def draw_background(self):
-
         kirby = pygame.image.load("kirby.png")
         self.screen.blit(kirby, (-75, 475))
 
@@ -85,16 +86,17 @@ class Home(Window):
     def start_game(self):
         self.is_running = True
 
-
         self.append_render(self.render_queue)
         self.append_render(self.draw_background)
         self.append_event(self.draw_gui)
         self.append_event(self.genSlider.events)
+        self.append_event(self.genSlider2.events)
         self.append_event(self.draw_tree)
 
+        self.append_render(self.detect_gen_change)
+        self.append_render(self.detect_tree_change)
         self.append_render(self.genSlider.render)
         self.append_render(self.genSlider2.render)
-        
         
         self.game_loop()
 
@@ -125,7 +127,6 @@ class Home(Window):
 
     # Calcula los datos de la imagen
     def set_area(self):
-
         self.tree = self.pygame.image.load(self.file)
         self.img = getImage(self.file)
 
@@ -144,7 +145,6 @@ class Home(Window):
 
     # Dibuja los mejores arboles por cada generacion
     def render_queue(self):
-
         if len(self.tree_list) == 0:
             return
 
@@ -178,10 +178,22 @@ class Home(Window):
                 self.screen, (0, 0, 0), start_pos, end_pos, 3)
         else:
             self.main_clock = time.time() * 1000
-        
+
+    def detect_gen_change(self):
+        if self.genSlider.getState() != self.currentGeneration:
+            self.currentGeneration = self.genSlider.getState()
+
+            amount = len(self.trees_per_gen[self.currentGeneration])
+            self.currentTree = 0
+            self.genSlider2.setData(np.arange(0, amount))
+
+    def detect_tree_change(self):
+        if self.genSlider2.getState() != self.currentTree:
+            self.currentTree = self.genSlider2.getState()
+            self.tree_list.append(self.trees_per_gen[self.currentGeneration][self.currentTree])
+
     # D: Dibuja un arbol en pantalla
     def draw_tree(self, event):
-
         if self.flag==False:
             return
 
@@ -202,7 +214,7 @@ class Home(Window):
 
         origin = [self.x, self.y]
 
-        population = generate_pob(100, origin[0]+100, origin[1]+200)
+        population = generate_pob(50, origin[0]+100, origin[1]+200)
         amount_gens = 10
 
         data = pd.DataFrame([], columns = ['num_individuo', 'generacion', 'fitness'])
@@ -220,13 +232,13 @@ class Home(Window):
                 data.append(row)
 
                 data = data.append(row)
-                result.append(pob[0][1])
+                result.append(pob[k][1])
             
             # Guardamos las poblaciones por generacion - poblacion
             self.trees_per_gen[i] = result
             population = merge(result, origin)
 
-        self.genSlider.setData(np.arange(1, amount_gens+1))
+        self.genSlider.setData(np.arange(0, amount_gens))
         data.to_csv('resultados.csv', index=False)
         self.execute_state = (255, 0, 0)
 
