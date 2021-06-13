@@ -67,6 +67,7 @@ class Home(Window):
         self.genSlider = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 255))
         self.genSlider2 = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 380))
 
+    # Se encarga de dibujar algunos detalles del fondo
     def draw_background(self):
         kirby = pygame.image.load("kirby.png")
         self.screen.blit(kirby, (-75, 475))
@@ -154,11 +155,47 @@ class Home(Window):
         origin = [self.x, self.y]
         matrix = np.zeros((200, 200), dtype=int)
 
-        
+        self.render_queue_info(self.tree_list[0])
+
         drawTree(self.tree_list[0], self.screen, self.img, origin, matrix, shouldRender = True)
 
         self.tree_list.pop(0)
-        time.sleep(0.1)
+        time.sleep(0.3)
+
+    def render_queue_info(self, tree):
+        texts = [
+            'Depth : ' + str(tree.depth),
+            'Angulo Fork : ' + str(tree.fork_angle),
+            'Branch Angle : ' + str(tree.branch_angle),
+            'Largo del tronco: ' + str(tree.base_len)
+        ]
+        textsR = [
+            'Largo de la rama : ' + str(tree.branch_base),
+            'Num de ramas : ' + str(tree.branches)
+        ]
+
+        pos = (300, 550)
+
+        for i in range(len(texts)):
+            text = self.Font.render(texts[i], True, (0, 0, 0))
+            text_rect = text.get_rect()
+            text_rect.x = pos[0]
+            text_rect.y = pos[1]
+            self.screen.blit(text, text_rect)
+
+            pos = (pos[0], pos[1] + 50)
+
+        pos = (500, 550)
+
+        for i in range(len(textsR)):
+            text = self.Font.render(textsR[i], True, (0, 0, 0))
+            text_rect = text.get_rect()
+            text_rect.x = pos[0]
+            text_rect.y = pos[1]
+            self.screen.blit(text, text_rect)
+
+            pos = (pos[0], pos[1] + 50)
+        
 
     # E/S: N/A
     # D: Se encarga de hacer la animacion del cursor
@@ -179,6 +216,7 @@ class Home(Window):
         else:
             self.main_clock = time.time() * 1000
 
+    # D: Evento para detectar cambios en el número de generación
     def detect_gen_change(self):
         if self.genSlider.getState() != self.currentGeneration:
             self.currentGeneration = self.genSlider.getState()
@@ -187,6 +225,7 @@ class Home(Window):
             self.currentTree = 0
             self.genSlider2.setData(np.arange(0, amount))
 
+    # D: Evento para detectar cambios en el árbol actual
     def detect_tree_change(self):
         if self.genSlider2.getState() != self.currentTree:
             self.currentTree = self.genSlider2.getState()

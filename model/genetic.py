@@ -137,6 +137,8 @@ def merge_tree(tree_a, tree_b):
     gen_tree = Tree()
     trees = [tree_a, tree_b]
 
+    gen_tree.fathers = trees
+
     # Estos valores son constantes
     gen_tree.x1 = tree_a.x1
     gen_tree.y1 = tree_a.y1
