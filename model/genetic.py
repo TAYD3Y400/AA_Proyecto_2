@@ -17,7 +17,7 @@ def fitness(results, weights, sums):
 
 # D: Genera una poblacion de parametros de arboles
 # E: n es el tamano de la poblacion
-def generate_pob(n, x = 300, y = 600):
+def generate_pob(n, x, y):
     pob = []
 
     for i in range(n):
@@ -153,11 +153,13 @@ def merge_tree(tree_a, tree_b):
 # Given a population, gets the the top 50% and 
 # generates a new generation and append it
 # Also agregates a new random tree
-def merge(population):
+def merge(population, origin):
+
     gen_size = int(len(population)*0.5)
     top = population[:gen_size]
 
-    new_gen = generate_pob(int(len(population)*0.2))
+    new_gen = generate_pob(int(len(population)*0.2), origin[0] + 100, origin[1] + 200)
+
     #new_gen.extend(top)
 
     for i in range(int(len(population)*1)):

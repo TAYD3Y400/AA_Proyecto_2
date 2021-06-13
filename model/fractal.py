@@ -12,7 +12,6 @@ def renderTree(screen, tree, x2, y2):
 
     pygame.draw.line(screen, rgb, (tree.x1, tree.y1), (x2, y2), 2)
 
-    pygame.display.update()
 
 # D: Evita que un punto sobrepase el min y max
 #    Por default los bordes son oscuros asi que esto es una penalizacion

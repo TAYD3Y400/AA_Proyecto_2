@@ -10,7 +10,10 @@ class Window(ABC):
     # Desc: Loop de la ventana. Solo debe encargarse de renderizar y eventos
     def game_loop(self):
         self.events.append(self.close)
+        self.change_back()
+        #self.append_render(self.change_back)
         while self.is_running:
+
             self.render()
 
             for event in self.pygame.event.get():
@@ -18,7 +21,11 @@ class Window(ABC):
                     e(event)
 
             self.pygame.display.update()
-            self.main_clock.tick(60)
+            self.main_clock.tick()
+
+    def change_back(self):
+        self.screen.fill(self.back_color)
+        
 
     # Desc: Se encarga de renderizar
     def render(self):

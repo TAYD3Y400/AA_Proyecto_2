@@ -33,6 +33,9 @@ class Home(Window):
         self.tree_list = []
         
         self.trees_per_gen = {}
+
+        self.x=500
+        self.y=200
         
         self.click = False
         self.main_clock = pygame.time.Clock()
@@ -40,7 +43,8 @@ class Home(Window):
         self.execute_state = (255, 0, 0)
 
         self.screen = pygame.display.set_mode((800, 800))
-        self.screen.fill((137, 207, 240))
+
+        self.back_color=(137, 207, 240)
         self.pygame.display.set_caption("Fractal Tree")
 
         self.sprite1 = Sprite("Arrow.png", 200, 400, 0, 0)
@@ -50,16 +54,6 @@ class Home(Window):
         self.text_rect = self.text.get_rect()
         self.text_rect.center = (800 / 5,800 / 5)
         self.screen.blit(self.text, self.text_rect)
-
-        self.generacion_text = self.Font.render('Generación #', True, (0,0,0))
-        self.text_rect2 = self.generacion_text.get_rect()
-        self.text_rect2.center = (145,240)
-        self.screen.blit(self.generacion_text, self.text_rect2)
-
-        self.poblation_text = self.Font.render('Población #', True, (0,0,0))
-        self.text_rect3 = self.poblation_text.get_rect()
-        self.text_rect3.center = (145,365)
-        self.screen.blit(self.poblation_text, self.text_rect3)
 
         self.flag=False
         self.file="Frame 3.png"
@@ -72,14 +66,27 @@ class Home(Window):
         self.genSlider2 = Slider([self.leftArrow, self.rightArrow, self.sliderBG], np.arange(20), self.screen, self.pygame, position=(25, 380))
 
     def draw_background(self):
+
         kirby = pygame.image.load("kirby.png")
         self.screen.blit(kirby, (-75, 475))
+
+        generacion_text = self.Font.render('Generación #', True, (0,0,0))
+        text_rect2 = generacion_text.get_rect()
+        text_rect2.center = (145,240)
+        self.screen.blit(generacion_text, text_rect2)
+
+        poblation_text = self.Font.render('Población #', True, (0,0,0))
+        text_rect3 = poblation_text.get_rect()
+        text_rect3.center = (145,365)
+        self.screen.blit(poblation_text, text_rect3)
    
 
     # Override
     def start_game(self):
         self.is_running = True
 
+
+        self.append_render(self.render_queue)
         self.append_render(self.draw_background)
         self.append_event(self.draw_gui)
         self.append_event(self.genSlider.events)
@@ -87,7 +94,7 @@ class Home(Window):
 
         self.append_render(self.genSlider.render)
         self.append_render(self.genSlider2.render)
-        self.append_render(self.render_queue)
+        
         
         self.game_loop()
 
@@ -118,6 +125,7 @@ class Home(Window):
 
     # Calcula los datos de la imagen
     def set_area(self):
+
         self.tree = self.pygame.image.load(self.file)
         self.img = getImage(self.file)
 
@@ -136,14 +144,17 @@ class Home(Window):
 
     # Dibuja los mejores arboles por cada generacion
     def render_queue(self):
+
         if len(self.tree_list) == 0:
             return
 
-        self.screen.blit(self.tree, (200, 400))
+        self.change_back()
+        self.screen.blit(self.tree, (self.x, self.y))
 
-        origin = [200, 400]
+        origin = [self.x, self.y]
         matrix = np.zeros((200, 200), dtype=int)
 
+        
         drawTree(self.tree_list[0], self.screen, self.img, origin, matrix, shouldRender = True)
 
         self.tree_list.pop(0)
@@ -170,6 +181,7 @@ class Home(Window):
         
     # D: Dibuja un arbol en pantalla
     def draw_tree(self, event):
+
         if self.flag==False:
             return
 
@@ -188,9 +200,9 @@ class Home(Window):
         self.totalArea=aux[0]
         self.img=aux[1]
 
-        origin = [200, 400]
+        origin = [self.x, self.y]
 
-        population = generate_pob(100)
+        population = generate_pob(100, origin[0]+100, origin[1]+200)
         amount_gens = 10
 
         data = pd.DataFrame([], columns = ['num_individuo', 'generacion', 'fitness'])
@@ -212,7 +224,7 @@ class Home(Window):
             
             # Guardamos las poblaciones por generacion - poblacion
             self.trees_per_gen[i] = result
-            population = merge(result)
+            population = merge(result, origin)
 
         self.genSlider.setData(np.arange(1, amount_gens+1))
         data.to_csv('resultados.csv', index=False)
